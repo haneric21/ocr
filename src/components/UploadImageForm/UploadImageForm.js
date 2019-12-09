@@ -6,11 +6,11 @@ import { Button } from "semantic-ui-react";
 import "./UploadImageForm.scss";
 
 const UploadImageForm = () => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const onDrop = useCallback(uploadedFile => {
-    setFile(uploadedFile[0]);
+  const onDrop = useCallback(uploadedFiles => {
+    setFiles(uploadedFiles);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
@@ -18,13 +18,15 @@ const UploadImageForm = () => {
     setLoading(true);
     const worker = createWorker();
     await worker.load();
-    await worker.loadLanguage("eng");
-    await worker.initialize("eng");
-    try {
-      const { data } = await worker.recognize(file);
-      console.log("data", data);
-    } catch (err) {
-      console.log("err", err);
+    for (const file of files) {
+      await worker.loadLanguage("eng");
+      await worker.initialize("eng");
+      try {
+        const { data } = await worker.recognize(file);
+        console.log("data", data);
+      } catch (err) {
+        console.log("err", err);
+      }
     }
     await worker.terminate();
     setLoading(false);
@@ -35,8 +37,8 @@ const UploadImageForm = () => {
       <h1>Upload a file</h1>
       <>
         <div className="dropFileZone" {...getRootProps()}>
-          {file ? (
-            <p>{file.name}</p>
+          {files.length ? (
+            <p>{`${files.length} file${files.length > 1 ? "s" : ""}`}</p>
           ) : (
             <>
               <input {...getInputProps()} />
@@ -50,7 +52,7 @@ const UploadImageForm = () => {
         </div>
         <Button
           loading={loading}
-          className={`parseButton ${file ? "show" : ""}`}
+          className={`parseButton ${files.length ? "show" : ""}`}
           primary
           onClick={handleSubmit}
         >

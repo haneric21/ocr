@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { Button } from "semantic-ui-react";
 // import sample_form from "./sample_form.jpg";
 import "./UploadImageForm.scss";
+import { parseTesseractData } from "./parseTesseractData";
 
 const UploadImageForm = () => {
   const [files, setFiles] = useState([]);
@@ -24,6 +25,7 @@ const UploadImageForm = () => {
       try {
         const { data } = await worker.recognize(file);
         console.log("data", data);
+        parseTesseractData(data);
       } catch (err) {
         console.log("err", err);
       }
@@ -34,7 +36,7 @@ const UploadImageForm = () => {
 
   return (
     <div className="container">
-      <h1>Upload a file</h1>
+      <h1>Upload files</h1>
       <>
         <div className="dropFileZone" {...getRootProps()}>
           {files.length ? (
